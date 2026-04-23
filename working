@@ -1,0 +1,21 @@
+POST /saga/start
+{
+  "data": { "orderId": 123 },
+  "steps": [
+    {
+      "name": "payment",
+      "action": "http://payment:8000/pay",
+      "compensation": "http://payment:8000/refund"
+    },
+    {
+      "name": "inventory",
+      "action": "http://inventory:4000/reserve",
+      "compensation": "http://inventory:4000/release"
+    },
+    {
+      "name": "notification",
+      "action": "http://notification:5000/notify",
+      "compensation": "http://notification:5000/cancel"
+    }
+  ]
+}

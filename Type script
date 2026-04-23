@@ -1,0 +1,39 @@
+import axios from "axios";
+import { Saga } from "./saga";
+import { saveSaga, updateSaga } from "./store";
+import { retry } from "./retry";
+
+export async function executeSaga(saga: Saga) {
+  saga.status = "running";
+  await saveSaga(saga);
+
+  for (let i = saga.currentStep; i < saga.steps.length; i++) {
+    const step = saga.steps[i];
+
+    try {
+      await retry(() => axios.post(step.action, saga.data), 3);
+      saga.currentStep = i + 1;
+      await updateSaga(saga);
+    } catch (err) {
+      saga.status = "compensating";
+      await compensate(saga, i);
+      saga.status = "failed";
+      await updateSaga(saga);
+      return;
+    }
+  }
+
+  saga.status = "completed";
+  await updateSaga(saga);
+}
+
+async function compensate(saga: Saga, failedIndex: number) {
+  for (let i = failedIndex - 1; i >= 0; i--) {
+    const step = saga.steps[i];
+    try {
+      await axios.post(step.compensation, saga.data);
+    } catch (err) {
+      console.error("Compensation failed:", step.name);
+    }
+  }
+}

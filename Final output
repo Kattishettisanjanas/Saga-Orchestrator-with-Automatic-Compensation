@@ -1,0 +1,8 @@
+{
+  "data": { "orderId": 123 },
+  "steps": [
+    { "name": "payment", "action": "/pay", "compensation": "/refund" },
+    { "name": "inventory", "action": "/reserve", "compensation": "/release" },
+    { "name": "notification", "action": "/notify", "compensation": "/cancel" }
+  ]
+}

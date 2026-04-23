@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  orchestrator:
+    build: ./orchestrator
+    ports:
+      - "3000:3000"
+
+  payment:
+    build: ./services/payment-python
+    ports:
+      - "8000:8000"
+
+  inventory:
+    build: ./services/inventory-go
+    ports:
+      - "4000:4000"
+
+  notification:
+    build: ./services/notification-node
+    ports:
+      - "5000:5000"
